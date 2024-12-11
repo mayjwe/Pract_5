@@ -1,21 +1,16 @@
-import socket
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
+from sqlalchemy import *
+Base = declarative_base()
 
-HOST = input("Нажмите Enter, чтобы использовать локальный хост: ") or socket.gethostname()
-PORT = 12345
-import socket
+class User(Base):
+    __tablename__ = "users"
+    id:Mapped[int] = mapped_column(Integer, primary_key=True)
+    name:Mapped[str] = mapped_column()
+    role_id:Mapped[int] = mapped_column(Integer, ForeignKey("roles.id"), nullable=True)
+    roles = relationship("Role", uselist=False, back_populates="user")
 
-
-def main():
-    client = socket.socket()
-    client.connect((HOST, PORT))
-    while True:
-        message = input("Введите сообщение (или 'exit' для выхода): ")
-        client.send(message.encode('utf-8'))
-        if message == 'exit':
-            break
-
-    client.close()
-
-
-if __name__ == "__main__":
-    main()
+class Role(Base):
+    __tablename__ = "roles"
+    id:Mapped[int] = mapped_column(Integer, primary_key=True)
+    name:Mapped[str] = mapped_column()
+    user = relationship("User", back_populates="roles")
